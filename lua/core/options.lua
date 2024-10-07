@@ -63,4 +63,3 @@ opt.updatetime = 50
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
 vim.g.netrw_banner = 0
-vim.g.netrw_liststyle = 3

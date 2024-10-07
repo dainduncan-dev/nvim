@@ -11,6 +11,7 @@ return {
                     return vim.fn.executable "make" == 1
                 end,
             },
+            "chipsenkbeil/distant.nvim",
         },
         config = function()
             local telescope = require("telescope")
@@ -30,6 +31,8 @@ return {
             })
 
             telescope.load_extension("fzf")
+            telescope.load_extension("distant")
+
         end,
     },
 }

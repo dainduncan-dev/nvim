@@ -25,5 +25,9 @@ keymap.set("n", "<leader>tp", ":tabp<CR>") --  Go to previous tab
 -- Telescope
 keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>") -- Find files within current working directory, respects .gitignore
 keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>") -- Find string in current working directory as you type
+
 keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>") -- Find string under cursor in current working directory
-keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>") -- Find existing buffers
+
+keymap.set("n", "<leader>ro", ":DistantOpen")
+keymap.set("n", "<leader>rt", ":DistantTerminal")
+keymap.set("n", "<leader>rc", ":DistantConnect ssh://gary@devbox.rotogrinders.com")
