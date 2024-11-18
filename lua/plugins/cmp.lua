@@ -7,11 +7,20 @@ return {
     "hrsh7th/cmp-nvim-lsp",
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
+    "zbirenbaum/copilot.lua",
     "zbirenbaum/copilot-cmp",
   },
   config = function()
     local cmp = require("cmp")
     local luasnip = require("luasnip")
+    local copilot = require("copilot")
+    local copilot_cmp = require("copilot_cmp")
+
+    copilot.setup({
+      suggestion = { enabled = false },
+      panel = { enabled = true },
+    })
+    copilot_cmp.setup()
 
     local has_words_before = function()
       unpack = unpack or table.unpack
@@ -53,13 +62,38 @@ return {
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
-        { name = "copilot" },
-        { name = "nvim_lsp" },
-        { name = "luasnip" },
-        { name = "buffer" },
-        { name = "path" },
+        { name = "copilot", group_index = 2 },
+        { name = "nvim_lsp", group_index = 2 },
+        { name = "luasnip", group_index = 2 },
+        { name = "buffer", group_index = 3 },
+        { name = "path", group_index = 3 },
       }),
+      sorting = {
+        priority_weight = 2,
+        comparators = {
+          require("copilot_cmp.comparators").prioritize,
+          cmp.config.compare.offset,
+          cmp.config.compare.exact,
+          cmp.config.compare.score,
+          cmp.config.compare.kind,
+          cmp.config.compare.sort_text,
+          cmp.config.compare.length,
+          cmp.config.compare.order,
+        },
+      },
     })
+
+    -- Set up lspconfig for better LSP integration
+    local capabilities = require('cmp_nvim_lsp').default_capabilities()
+    local lspconfig = require('lspconfig')
+    
+    -- Set up each LSP server
+    local servers = { 'pyright', 'ts_ls', 'rust_analyzer' }
+    for _, lsp in ipairs(servers) do
+      lspconfig[lsp].setup {
+        capabilities = capabilities,
+      }
+    end
 
     -- Add this section at the end of the config function
     vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = "#abb2bf", bg = "NONE" })

@@ -14,7 +14,18 @@ return {
 
       mason.setup()
       mason_lspconfig.setup({
-        ensure_installed = { "lua_ls", "pyright", "rust_analyzer", "eslint" },
+        ensure_installed = {
+          "lua_ls",
+          "eslint",          -- ESLint
+          "tailwindcss",     -- If you use Tailwind
+          "cssls",           -- CSS
+          "html",            -- HTML
+          "emmet_ls",        -- Emmet support
+          "prismals",        -- If you use Prisma
+          "jsonls",          -- JSON
+          "pyright",         -- Python
+          "rust_analyzer",   -- Rust
+        },
         automatic_installation = true,
       })
 

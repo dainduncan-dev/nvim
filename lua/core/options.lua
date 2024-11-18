@@ -13,9 +13,12 @@ opt.softtabstop = 2
 opt.shiftwidth = 2
 opt.expandtab = true
 opt.smartindent = true
+opt.laststatus = 3
 
 -- Line wrapping
-opt.wrap = false
+opt.wrap = true
+opt.breakindent = true
+opt.linebreak = true
 
 -- Search settings
 opt.ignorecase = true
@@ -63,3 +66,24 @@ opt.updatetime = 50
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
 vim.g.netrw_banner = 0
+
+-- Set up autocommands for FileType-specific settings
+vim.api.nvim_create_augroup("FileTypeSettings", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+    group = "FileTypeSettings",
+    pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    callback = function()
+        vim.bo.indentexpr = "GetJsxIndent()"
+        vim.bo.formatexpr = "JsxFormatter()"
+    end,
+})
+
+-- Set up JSX indentation function
+function GetJsxIndent()
+    return -1  -- Use Vim's default indentation
+end
+
+-- Set up JSX formatter function
+function JsxFormatter()
+    return 0  -- Use Vim's default formatting
+end
