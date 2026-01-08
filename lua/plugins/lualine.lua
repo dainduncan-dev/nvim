@@ -1,78 +1,228 @@
 return {
-  'nvim-lualine/lualine.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
+  "nvim-lualine/lualine.nvim",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
-    local function custom_filename()
-      local filename = vim.fn.expand('%:t')
-      local filepath = vim.fn.expand('%:p')
-      local parent = vim.fn.fnamemodify(filepath, ':h:t')
-      local grandparent = vim.fn.fnamemodify(filepath, ':h:h:t')
-      
-      if filename == '' then return '[No Name]' end
-      
-      if parent ~= '.' then
-        if grandparent ~= '.' then
-          return string.format('%s/%s/%s', grandparent, parent, filename)
-        else
-          return string.format('%s/%s', parent, filename)
-        end
-      else
-        return filename
-      end
-    end
+    local colors = {
+      bg = "#16181a",
+      fg = "#ffffff",
+      yellow = "#f1ff5e",
+      cyan = "#5ef1ff",
+      green = "#5eff6c",
+      orange = "#ffbd5e",
+      magenta = "#ff5ef1",
+      blue = "#5ea1ff",
+      red = "#ff6e5e",
+    }
 
-    require('lualine').setup {
+    local mode_color = {
+      n = colors.blue,
+      i = colors.green,
+      v = colors.magenta,
+      [""] = colors.magenta,
+      V = colors.magenta,
+      c = colors.orange,
+      no = colors.red,
+      s = colors.orange,
+      S = colors.orange,
+      [""] = colors.orange,
+      ic = colors.yellow,
+      R = colors.red,
+      Rv = colors.red,
+      cv = colors.red,
+      ce = colors.red,
+      r = colors.cyan,
+      rm = colors.cyan,
+      ["r?"] = colors.cyan,
+      ["!"] = colors.red,
+      t = colors.cyan,
+    }
+
+    local conditions = {
+      buffer_not_empty = function()
+        return vim.fn.empty(vim.fn.expand("%:t")) ~= 1
+      end,
+      hide_in_width = function()
+        return vim.fn.winwidth(0) > 80
+      end,
+    }
+
+    local config = {
       options = {
-        icons_enabled = true,
-        theme = 'auto',
-        component_separators = { left = '', right = ''},
-        section_separators = { left = '', right = ''},
-        disabled_filetypes = {
-          statusline = {},
-          winbar = {},
+        component_separators = "",
+        section_separators = "",
+        theme = {
+          normal = { c = { fg = colors.fg, bg = colors.bg } },
+          inactive = { c = { fg = colors.fg, bg = colors.bg } },
         },
-        ignore_focus = {},
-        always_divide_middle = true,
-        globalstatus = false,
-        refresh = {
-          statusline = 1000,
-          tabline = 1000,
-          winbar = 1000,
-        }
+        globalstatus = true,
+        disabled_filetypes = { statusline = { "dashboard", "NvimTree" } },
       },
       sections = {
-        lualine_a = {'mode'},
-        lualine_b = {'branch', 'diff', 'diagnostics'},
-        lualine_c = {
-          {
-            custom_filename,
-            file_status = true,      -- Displays file status (readonly status, modified status)
-            path = 0,                -- We don't need the full path as we're using a custom function
-            shorting_target = 40,    -- Shortens path to leave 40 spaces in the window
-                                     -- for other components.
-            symbols = {
-              modified = '[+]',      -- Text to show when the file is modified.
-              readonly = '[-]',      -- Text to show when the file is non-modifiable or readonly.
-              unnamed = '[No Name]', -- Text to show for unnamed buffers.
-            }
-          }
-        },
-        lualine_x = {'encoding', 'fileformat', 'filetype'},
-        lualine_y = {'progress'},
-        lualine_z = {'location'}
+        lualine_a = {},
+        lualine_b = {},
+        lualine_y = {},
+        lualine_z = {},
+        lualine_c = {},
+        lualine_x = {},
       },
       inactive_sections = {
         lualine_a = {},
         lualine_b = {},
-        lualine_c = {'filename'},
-        lualine_x = {'location'},
         lualine_y = {},
-        lualine_z = {}
+        lualine_z = {},
+        lualine_c = {},
+        lualine_x = {},
       },
-      tabline = {},
-      winbar = {},
-      inactive_winbar = {},
-      extensions = {}
     }
-  end
+
+    local function ins_left(component)
+      table.insert(config.sections.lualine_c, component)
+    end
+
+    local function ins_right(component)
+      table.insert(config.sections.lualine_x, component)
+    end
+
+    -- Left side
+    ins_left({
+      function()
+        return "▊"
+      end,
+      color = function()
+        return { fg = mode_color[vim.fn.mode()] }
+      end,
+      padding = { left = 0, right = 1 },
+    })
+
+    ins_left({
+      function()
+        local mode_icons = {
+          n = "",
+          i = "",
+          v = "",
+          [""] = "",
+          V = "",
+          c = "",
+          no = "",
+          s = "",
+          S = "",
+          ic = "",
+          R = "",
+          Rv = "",
+          cv = "",
+          ce = "",
+          r = "",
+          rm = "",
+          ["r?"] = "",
+          ["!"] = "",
+          t = "",
+        }
+        return mode_icons[vim.fn.mode()] or ""
+      end,
+      color = function()
+        return { fg = mode_color[vim.fn.mode()], gui = "bold" }
+      end,
+      padding = { right = 1 },
+    })
+
+    ins_left({
+      "branch",
+      icon = "",
+      color = { fg = colors.magenta, gui = "bold" },
+    })
+
+    ins_left({
+      "diff",
+      symbols = { added = " ", modified = " ", removed = " " },
+      diff_color = {
+        added = { fg = colors.green },
+        modified = { fg = colors.orange },
+        removed = { fg = colors.red },
+      },
+      cond = conditions.hide_in_width,
+    })
+
+    ins_left({
+      "diagnostics",
+      sources = { "nvim_diagnostic" },
+      symbols = { error = " ", warn = " ", info = " ", hint = " " },
+      diagnostics_color = {
+        error = { fg = colors.red },
+        warn = { fg = colors.yellow },
+        info = { fg = colors.cyan },
+        hint = { fg = colors.green },
+      },
+    })
+
+    ins_left({
+      function()
+        return "%="
+      end,
+    })
+
+    ins_left({
+      "filename",
+      cond = conditions.buffer_not_empty,
+      color = { fg = colors.cyan, gui = "bold" },
+      path = 1,
+      symbols = {
+        modified = " ●",
+        readonly = " ",
+        unnamed = "[No Name]",
+      },
+    })
+
+    -- Right side
+    ins_right({
+      function()
+        local clients = vim.lsp.get_clients({ bufnr = 0 })
+        if next(clients) == nil then
+          return ""
+        end
+        local names = {}
+        for _, client in ipairs(clients) do
+          table.insert(names, client.name)
+        end
+        return "  " .. table.concat(names, ", ")
+      end,
+      color = { fg = colors.green },
+      cond = conditions.hide_in_width,
+    })
+
+    ins_right({
+      "filetype",
+      colored = true,
+      icon_only = true,
+      padding = { left = 1, right = 0 },
+    })
+
+    ins_right({
+      "encoding",
+      fmt = string.upper,
+      cond = conditions.hide_in_width,
+      color = { fg = colors.fg },
+    })
+
+    ins_right({
+      "location",
+      color = { fg = colors.orange },
+    })
+
+    ins_right({
+      "progress",
+      color = { fg = colors.blue, gui = "bold" },
+    })
+
+    ins_right({
+      function()
+        return "▊"
+      end,
+      color = function()
+        return { fg = mode_color[vim.fn.mode()] }
+      end,
+      padding = { left = 1 },
+    })
+
+    require("lualine").setup(config)
+  end,
 }

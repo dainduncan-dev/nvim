@@ -3,25 +3,32 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",
+    "nvim-telescope/telescope.nvim",
+  },
+  cmd = "Neogit",
+  keys = {
+    { "<leader>gg", "<cmd>Neogit<cr>", desc = "Neogit" },
+    { "<leader>gc", "<cmd>Neogit commit<cr>", desc = "Git commit" },
+    { "<leader>gp", "<cmd>Neogit push<cr>", desc = "Git push" },
+    { "<leader>gl", "<cmd>Neogit pull<cr>", desc = "Git pull" },
+    { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview" },
+    { "<leader>gD", "<cmd>DiffviewClose<cr>", desc = "Close Diffview" },
   },
   config = function()
-    local neogit = require("neogit")
-    neogit.setup {
-      -- Add configuration options here
-      disable_signs = false,
+    require("neogit").setup({
       disable_hint = false,
       disable_context_highlighting = false,
-      status = {
-        recent_commit_count = 10,
-      },
-      -- Integrate with diffview.nvim
+      disable_signs = false,
+      graph_style = "unicode",
       integrations = {
-        diffview = true
+        telescope = true,
+        diffview = true,
       },
-    }
-
-    vim.keymap.set("n", "<leader>gs", function()
-      neogit.open()
-    end)
+      signs = {
+        hunk = { "", "" },
+        item = { "", "" },
+        section = { "", "" },
+      },
+    })
   end,
 }

@@ -2,37 +2,36 @@ return {
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
   dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
-    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-cmdline",
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
-    "zbirenbaum/copilot.lua",
-    "zbirenbaum/copilot-cmp",
+    "rafamadriz/friendly-snippets",
+    "onsails/lspkind.nvim",
   },
   config = function()
     local cmp = require("cmp")
     local luasnip = require("luasnip")
-    local copilot = require("copilot")
-    local copilot_cmp = require("copilot_cmp")
+    local lspkind = require("lspkind")
 
-    copilot.setup({
-      suggestion = { enabled = false },
-      panel = { enabled = true },
-    })
-    copilot_cmp.setup()
-
-    local has_words_before = function()
-      unpack = unpack or table.unpack
-      local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-    end
+    -- Load friendly-snippets
+    require("luasnip.loaders.from_vscode").lazy_load()
 
     cmp.setup({
       snippet = {
         expand = function(args)
           luasnip.lsp_expand(args.body)
         end,
+      },
+      window = {
+        completion = cmp.config.window.bordered({
+          winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
+        }),
+        documentation = cmp.config.window.bordered({
+          winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
+        }),
       },
       mapping = cmp.mapping.preset.insert({
         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
@@ -45,8 +44,6 @@ return {
             cmp.select_next_item()
           elseif luasnip.expand_or_jumpable() then
             luasnip.expand_or_jump()
-          elseif has_words_before() then
-            cmp.complete()
           else
             fallback()
           end
@@ -62,60 +59,44 @@ return {
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
-        { name = "copilot", group_index = 2 },
-        { name = "nvim_lsp", group_index = 2 },
-        { name = "luasnip", group_index = 2 },
-        { name = "buffer", group_index = 3 },
-        { name = "path", group_index = 3 },
+        { name = "nvim_lsp", priority = 1000 },
+        { name = "luasnip", priority = 750 },
+        { name = "buffer", priority = 500 },
+        { name = "path", priority = 250 },
       }),
-      sorting = {
-        priority_weight = 2,
-        comparators = {
-          require("copilot_cmp.comparators").prioritize,
-          cmp.config.compare.offset,
-          cmp.config.compare.exact,
-          cmp.config.compare.score,
-          cmp.config.compare.kind,
-          cmp.config.compare.sort_text,
-          cmp.config.compare.length,
-          cmp.config.compare.order,
-        },
+      formatting = {
+        format = lspkind.cmp_format({
+          mode = "symbol_text",
+          maxwidth = 50,
+          ellipsis_char = "...",
+          menu = {
+            nvim_lsp = "[LSP]",
+            luasnip = "[Snip]",
+            buffer = "[Buf]",
+            path = "[Path]",
+          },
+        }),
+      },
+      experimental = {
+        ghost_text = true,
       },
     })
 
-    -- Set up lspconfig for better LSP integration
-    local capabilities = require('cmp_nvim_lsp').default_capabilities()
-    local lspconfig = require('lspconfig')
-    
-    -- Set up each LSP server
-    local servers = { 'pyright', 'ts_ls', 'rust_analyzer' }
-    for _, lsp in ipairs(servers) do
-      lspconfig[lsp].setup {
-        capabilities = capabilities,
-      }
-    end
+    -- Cmdline completion
+    cmp.setup.cmdline(":", {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = cmp.config.sources({
+        { name = "path" },
+      }, {
+        { name = "cmdline" },
+      }),
+    })
 
-    -- Add this section at the end of the config function
-    vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = "#abb2bf", bg = "NONE" })
-    vim.api.nvim_set_hl(0, "CmpItemAbbrMatch", { fg = "#61afef", bg = "NONE", bold = true })
-    vim.api.nvim_set_hl(0, "CmpItemAbbrMatchFuzzy", { fg = "#61afef", bg = "NONE", bold = true })
-    vim.api.nvim_set_hl(0, "CmpItemKind", { fg = "#c678dd", bg = "NONE" })
-    vim.api.nvim_set_hl(0, "CmpItemMenu", { fg = "#98c379", bg = "NONE" })
-    vim.api.nvim_set_hl(0, "PmenuSel", { bg = "#282C34" })
-    vim.api.nvim_set_hl(0, "Pmenu", { fg = "#C5CDD9", bg = "#22252A" })
-
-    vim.cmd [[
-      highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=#808080
-      highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
-      highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
-      highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
-      highlight! CmpItemKindInterface guibg=NONE guifg=#9CDCFE
-      highlight! CmpItemKindText guibg=NONE guifg=#9CDCFE
-      highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
-      highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
-      highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
-      highlight! CmpItemKindProperty guibg=NONE guifg=#D4D4D4
-      highlight! CmpItemKindUnit guibg=NONE guifg=#D4D4D4
-    ]]
+    cmp.setup.cmdline({ "/", "?" }, {
+      mapping = cmp.mapping.preset.cmdline(),
+      sources = {
+        { name = "buffer" },
+      },
+    })
   end,
 }

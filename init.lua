@@ -1,3 +1,7 @@
+-- Disable netrw early (before any plugins load)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -17,4 +21,14 @@ require('core.options')
 require('core.keymaps')
 
 -- Setup lazy.nvim
-require("lazy").setup("plugins")
+require("lazy").setup("plugins", {
+  change_detection = {
+    notify = false,
+  },
+  ui = {
+    border = "rounded",
+  },
+  checker = {
+    enabled = false,
+  },
+})

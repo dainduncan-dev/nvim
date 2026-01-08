@@ -1,5 +1,8 @@
 local opt = vim.opt
 
+-- Suppress intro and other messages
+opt.shortmess:append("sIcF")
+
 -- Cursor
 opt.guicursor = ""
 
@@ -62,10 +65,13 @@ opt.isfname:append("@-@")
 -- Update time
 opt.updatetime = 50
 
+-- Prevent "Press Enter" prompts
+opt.cmdheight = 1
+opt.more = false
+
 -- Make background transparent
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
-vim.g.netrw_banner = 0
 
 -- Set up autocommands for FileType-specific settings
 vim.api.nvim_create_augroup("FileTypeSettings", { clear = true })
