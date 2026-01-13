@@ -46,6 +46,7 @@ opt.clipboard ="unnamedplus"
 -- Split windows
 opt.splitright = true
 opt.splitbelow = true
+opt.winborder = "rounded"
 
 -- Consider - as part of keyword
 opt.iskeyword:append("-")
@@ -73,23 +74,32 @@ opt.more = false
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
 
--- Set up autocommands for FileType-specific settings
-vim.api.nvim_create_augroup("FileTypeSettings", { clear = true })
-vim.api.nvim_create_autocmd("FileType", {
-    group = "FileTypeSettings",
-    pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-    callback = function()
-        vim.bo.indentexpr = "GetJsxIndent()"
-        vim.bo.formatexpr = "JsxFormatter()"
-    end,
+-- Focus nvim-tree on startup
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.schedule(function()
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if vim.bo[buf].filetype == "NvimTree" then
+          vim.api.nvim_set_current_win(win)
+          break
+        end
+      end
+    end)
+  end,
+  nested = true,
+  once = true,
 })
 
--- Set up JSX indentation function
-function GetJsxIndent()
-    return -1  -- Use Vim's default indentation
-end
-
--- Set up JSX formatter function
-function JsxFormatter()
-    return 0  -- Use Vim's default formatting
-end
+-- Fix nvim-tree width
+vim.api.nvim_create_autocmd("WinResized", {
+  callback = function()
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      if vim.bo[buf].filetype == "NvimTree" then
+        vim.api.nvim_win_set_width(win, 35)
+        break
+      end
+    end
+  end,
+})

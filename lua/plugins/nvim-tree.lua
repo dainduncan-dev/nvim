@@ -74,7 +74,7 @@ return {
       actions = {
         open_file = {
           quit_on_open = false,
-          resize_window = true,
+          resize_window = false,
         },
       },
       diagnostics = {
@@ -82,28 +82,7 @@ return {
       },
     })
 
-    -- Keymaps
     vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle file tree" })
     vim.keymap.set("n", "<leader>E", "<cmd>NvimTreeFindFile<cr>", { desc = "Find file in tree" })
-
-    -- After nvim-tree hijacks a directory, create an empty buffer on the right
-    vim.api.nvim_create_autocmd("FileType", {
-      pattern = "NvimTree",
-      callback = function()
-        -- Only run once on startup when opening a directory
-        if vim.fn.argc() > 0 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-          vim.schedule(function()
-            -- Create empty buffer to the right of the tree
-            vim.cmd("wincmd l")
-            if vim.bo.filetype == "NvimTree" then
-              vim.cmd("vsplit")
-              vim.cmd("wincmd l")
-            end
-            vim.cmd("enew")
-          end)
-        end
-      end,
-      once = true,
-    })
   end,
 }

@@ -39,18 +39,17 @@ return {
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Diagnostic configuration
       vim.diagnostic.config({
         virtual_text = {
-          prefix = "",
+          prefix = "●",
           spacing = 2,
         },
         signs = {
           text = {
-            [vim.diagnostic.severity.ERROR] = "",
-            [vim.diagnostic.severity.WARN] = "",
-            [vim.diagnostic.severity.HINT] = "",
-            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.ERROR] = "✘",
+            [vim.diagnostic.severity.WARN] = "⚠",
+            [vim.diagnostic.severity.HINT] = "ℹ",
+            [vim.diagnostic.severity.INFO] = "✦",
           },
         },
         underline = true,
@@ -62,8 +61,7 @@ return {
         },
       })
 
-      -- Lua
-      vim.lsp.config.lua_ls = {
+      vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = {
           Lua = {
@@ -77,10 +75,9 @@ return {
             telemetry = { enable = false },
           },
         },
-      }
+      })
 
-      -- TypeScript/JavaScript
-      vim.lsp.config.ts_ls = {
+      vim.lsp.config("ts_ls", {
         capabilities = capabilities,
         settings = {
           typescript = {
@@ -98,10 +95,9 @@ return {
             },
           },
         },
-      }
+      })
 
-      -- ESLint
-      vim.lsp.config.eslint = {
+      vim.lsp.config("eslint", {
         capabilities = capabilities,
         on_attach = function(_, bufnr)
           vim.api.nvim_create_autocmd("BufWritePre", {
@@ -109,27 +105,14 @@ return {
             command = "EslintFixAll",
           })
         end,
-      }
+      })
 
-      -- Simple servers
       local simple_servers = { "tailwindcss", "cssls", "html", "emmet_ls", "jsonls", "pyright", "rust_analyzer" }
       for _, server in ipairs(simple_servers) do
-        vim.lsp.config[server] = { capabilities = capabilities }
+        vim.lsp.config(server, {
+          capabilities = capabilities,
+        })
       end
-
-      -- Enable all servers
-      vim.lsp.enable({
-        "lua_ls",
-        "ts_ls",
-        "eslint",
-        "tailwindcss",
-        "cssls",
-        "html",
-        "emmet_ls",
-        "jsonls",
-        "pyright",
-        "rust_analyzer",
-      })
     end,
   },
 }
