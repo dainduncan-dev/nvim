@@ -1,40 +1,48 @@
-return {
+ return {
   "nvim-lualine/lualine.nvim",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
     local colors = {
-      bg = "#16181a",
-      fg = "#ffffff",
-      yellow = "#f1ff5e",
-      cyan = "#5ef1ff",
-      green = "#5eff6c",
-      orange = "#ffbd5e",
-      magenta = "#ff5ef1",
-      blue = "#5ea1ff",
-      red = "#ff6e5e",
+      bg = "#181825",
+      fg = "#6c7086",
+      rosewater = "#f5e0dc",
+      flamingo = "#f2cdcd",
+      pink = "#f5c2e7",
+      mauve = "#cba6f7",
+      red = "#f38ba8",
+      maroon = "#eba0ac",
+      peach = "#fab387",
+      yellow = "#f9e2af",
+      green = "#a6e3a1",
+      teal = "#94e2d5",
+      sky = "#89dceb",
+      sapphire = "#74c7ec",
+      blue = "#89b4fa",
+      lavender = "#b4befe",
+      text = "#cdd6f4",
     }
 
     local mode_color = {
       n = colors.blue,
       i = colors.green,
-      v = colors.magenta,
-      [""] = colors.magenta,
-      V = colors.magenta,
-      c = colors.orange,
+      v = colors.pink,
+      [""] = colors.pink,
+      V = colors.pink,
+      c = colors.peach,
       no = colors.red,
-      s = colors.orange,
-      S = colors.orange,
-      [""] = colors.orange,
+      s = colors.peach,
+      S = colors.peach,
+      [""] = colors.peach,
       ic = colors.yellow,
       R = colors.red,
       Rv = colors.red,
       cv = colors.red,
       ce = colors.red,
-      r = colors.cyan,
-      rm = colors.cyan,
-      ["r?"] = colors.cyan,
+      r = colors.teal,
+      rm = colors.teal,
+      ["r?"] = colors.teal,
       ["!"] = colors.red,
-      t = colors.cyan,
+      t = colors.teal,
     }
 
     local conditions = {
@@ -51,7 +59,7 @@ return {
         component_separators = "",
         section_separators = "",
         theme = {
-          normal = { c = { fg = colors.fg, bg = colors.bg } },
+          normal = { c = { fg = colors.text, bg = colors.bg } },
           inactive = { c = { fg = colors.fg, bg = colors.bg } },
         },
         globalstatus = true,
@@ -83,7 +91,6 @@ return {
       table.insert(config.sections.lualine_x, component)
     end
 
-    -- Left side
     ins_left({
       function()
         return "▊"
@@ -95,48 +102,17 @@ return {
     })
 
     ins_left({
-      function()
-        local mode_icons = {
-          n = "",
-          i = "",
-          v = "",
-          [""] = "",
-          V = "",
-          c = "",
-          no = "",
-          s = "",
-          S = "",
-          ic = "",
-          R = "",
-          Rv = "",
-          cv = "",
-          ce = "",
-          r = "",
-          rm = "",
-          ["r?"] = "",
-          ["!"] = "",
-          t = "",
-        }
-        return mode_icons[vim.fn.mode()] or ""
-      end,
-      color = function()
-        return { fg = mode_color[vim.fn.mode()], gui = "bold" }
-      end,
-      padding = { right = 1 },
-    })
-
-    ins_left({
       "branch",
-      icon = "",
-      color = { fg = colors.magenta, gui = "bold" },
+      icon = "",
+      color = { fg = colors.mauve, gui = "bold" },
     })
 
     ins_left({
       "diff",
-      symbols = { added = " ", modified = " ", removed = " " },
+      symbols = { added = "A", modified = "M", removed = "D" },
       diff_color = {
         added = { fg = colors.green },
-        modified = { fg = colors.orange },
+        modified = { fg = colors.peach },
         removed = { fg = colors.red },
       },
       cond = conditions.hide_in_width,
@@ -145,11 +121,11 @@ return {
     ins_left({
       "diagnostics",
       sources = { "nvim_diagnostic" },
-      symbols = { error = " ", warn = " ", info = " ", hint = " " },
+      symbols = { error = "E", warn = "W", info = "I", hint = "H" },
       diagnostics_color = {
         error = { fg = colors.red },
         warn = { fg = colors.yellow },
-        info = { fg = colors.cyan },
+        info = { fg = colors.sky },
         hint = { fg = colors.green },
       },
     })
@@ -163,16 +139,15 @@ return {
     ins_left({
       "filename",
       cond = conditions.buffer_not_empty,
-      color = { fg = colors.cyan, gui = "bold" },
+      color = { fg = colors.text, gui = "bold" },
       path = 1,
       symbols = {
         modified = " ●",
-        readonly = " ",
+        readonly = " ",
         unnamed = "[No Name]",
       },
     })
 
-    -- Right side
     ins_right({
       function()
         local clients = vim.lsp.get_clients({ bufnr = 0 })
@@ -183,7 +158,7 @@ return {
         for _, client in ipairs(clients) do
           table.insert(names, client.name)
         end
-        return "  " .. table.concat(names, ", ")
+        return "LSP " .. table.concat(names, ", ")
       end,
       color = { fg = colors.green },
       cond = conditions.hide_in_width,
@@ -205,7 +180,7 @@ return {
 
     ins_right({
       "location",
-      color = { fg = colors.orange },
+      color = { fg = colors.peach },
     })
 
     ins_right({
