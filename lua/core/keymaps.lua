@@ -127,7 +127,7 @@ end, { desc = "Flash treesitter" })
 
 -- Harpoon
 keymap.set("n", "<leader>hm", function()
-  require("harpoon"):list():append()
+  require("harpoon"):list():add()
 end, { desc = "Add file to harpoon" })
 keymap.set("n", "<leader>hh", function()
   require("harpoon").ui:toggle_quick_menu(require("harpoon"):list())
